@@ -3,20 +3,20 @@ services:
   keto-migrate:
     image: oryd/keto:v0.11.1-alpha.0
     links:
-      - postgresd:postgresd
+      - keto-postgresd:keto-postgresd
     volumes:
       - type: bind
         source: ./config
         target: /home/ory
     environment:
       - LOG_LEVEL=debug
-      - DSN=postgres://dbuser:secret@postgresd:5432/accesscontroldb?sslmode=disable
+      - DSN=postgres://dbuser:secret@keto-postgresd:5432/accesscontroldb?sslmode=disable
     command: ["migrate", "up", "-y"]
     restart: on-failure
   keto:
     image: oryd/keto:v0.11.1-alpha.0
     links:
-      - postgresd:postgresd
+      - keto-postgresd:keto-postgresd
     volumes:
       - type: bind
         source: ./config
@@ -27,9 +27,9 @@ services:
     depends_on:
       - keto-migrate
     environment:
-      - DSN=postgres://dbuser:secret@postgresd:5432/accesscontroldb?sslmode=disable
+      - DSN=postgres://dbuser:secret@keto-postgresd:5432/accesscontroldb?sslmode=disable
     restart: on-failure
-  postgresd:
+  keto-postgresd:
     image: postgres:9.6
     environment:
       - POSTGRES_USER=dbuser
